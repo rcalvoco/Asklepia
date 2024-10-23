@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escritorio Web</title>
+    <style>
+        #assistant-image {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background-image: url('/images/asistete.png');
+            background-size: cover;
+            margin: 0 auto 10px auto; /* Ajuste de márgenes */
+            transition: all 0.5s ease; /* Transición para cuando suba la imagen */
+        }
+
+        .listening {
+            border: 5px solid green;
+        }
+        
+
+        .image-up {
+            margin-top: -50px; /* Mover la imagen hacia arriba */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-size: 200% 200%; /* Hacemos que el fondo sea más grande para que el movimiento se note */
+            background: linear-gradient(175deg, rgba(0,0,0,1) 0%, rgba(7,7,103,1) 45%, rgba(2,97,116,1) 100%);
+            animation: gradient-animation 15s ease infinite; /* Cambiamos la duración de la animación a 15 segundos */
+            font-family: Arial, sans-serif;
+            overflow: hidden; /* Evitar scroll */
+        }
+
+        @keyframes gradient-animation {
+            0% {
+                background-position: 0% 50%; /* Posición inicial del fondo */
+            }
+            50% {
+                background-position: 100% 50%; /* Posición en medio del ciclo */
+            }
+            100% {
+                background-position: 0% 50%; /* Regresamos al punto inicial */
+            }
+        }
+
+        .desktop {
+            display: grid;
+            grid-template-columns: 0fr 1fr 0fr; /* Tres columnas */
+            grid-gap: 20px;
+            justify-items: center;
+            align-items: center;
+            padding: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .left-column, .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 90%;
+            background-color: rgba(255, 255, 255, 0.6); /* Blanco con transparencia 50% */
+            padding: 20px;
+            text-align: center;
+            border: solid aliceblue 3px;
+            border-radius: 20px;
+            min-width: 150px;
+            max-width: 150px;
+        }
+
+        .center-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease; /* Añadimos la transición aquí */
+        }
+
+        .icon {
+            text-align: center;
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            font-weight: 500;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 15px;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s, box-shadow 0.3s; /* Transiciones suaves */
+        }
+
+        .icon img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .icon p {
+            font-weight: 800;
+        }
+
+        .icon:hover {
+            background-color: rgb(211, 229, 244);
+            transform: translateY(-5px); /* Pequeño efecto de elevación al hacer hover */
+        }
+
+        #logo-asklepia {
+            position: relative;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 450px;
+            z-index: 100; /* Asegura que el logo esté por encima */
+        }
+
+        /* Estilo de los botones */
+        #start-btn, #stop-btn {
+            display: block;
+            margin: 20px auto;
+            background-color: white;
+            color: black;
+            padding: 20px 40px;
+            font-size: 20px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.3s;
+            width: 400px;
+            font-weight: 700;
+        }
+
+        #start-btn:hover, #stop-btn:hover {
+            background-color: #d7d6d6;
+            transform: scale(1.05);
+        }
+
+        /* Escondemos el botón de detener asistente inicialmente */
+        #stop-btn {
+            display: none;
+        }
+
+        /* Estilo para el cuadro de texto con scroll */
+        #response {
+            margin-top: 20px;
+            width: 400px;
+            height: 80px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: none;
+            border-radius: 15px;
+            padding: 10px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-sizing: border-box;
+            transition: height 0.5s ease; /* Añadimos una transición para cambiar su tamaño */
+        }
+
+        .response-expanded {
+            height: 200px; /* Tamaño mayor del cuadro de texto cuando haya respuesta */
+        }
+
+        /* Estilos para el modal (pop-up) */
+        #imageModal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        #modalContent {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        #imageModalContent {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        #closeBtn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        #closeBtn:hover {
+            background-color: #e53935;
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop">
+        <!-- Columna izquierda -->
+        <div class="left-column">
+            <h2>Otros</h2>
+            <div class="icon" onclick="openImageModal()">
+                <img src="https://images.vexels.com/content/208074/preview/band-aids-icon-26d597.png" alt="Notepad Icon">
+                <p>Tiritas</p>
+            </div>
+            <div class="icon" onclick="openImageModal()">
+                <img src="https://cdn-icons-png.flaticon.com/512/197/197886.png" alt="Calculator Icon">
+                <p>Alcohol</p>
+            </div>
+            <div class="icon" onclick="openImageModal()">
+                <img src="https://cdn-icons-png.flaticon.com/512/883/883011.png" alt="Browser Icon">
+                <p>Guantes</p>
+            </div>
+            <div class="icon" onclick="openImageModal()">
+                <img src="https://cdn-icons-png.flaticon.com/512/4229/4229057.png" alt="Settings Icon">
+                <p>Tijeras</p>
+            </div>
+        </div>
+
+        <!-- Columna central para la imagen -->
+        <div class="center-column">
+            <h1 style="opacity: 0;">Asklepia</h1>
+            <img id="logo-asklepia" src="./images/AsklepiA.png" alt="logo de ASKLEPIA">
+            <div id="assistant-image"></div>
+            <button id="start-btn">Hablar</button> 
+            <button id="stop-btn">Detener Asistente</button>
+            <div id="response" class="hidden"></div> <!-- Cuadro de texto con scroll para las respuestas -->
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="right-column">
+            <h2>Recursos</h2>
+            <div class="icon" onclick="openImageModal()">
+                <img src="https://cdn-icons-png.flaticon.com/512/4076/4076788.png" alt="Music Icon">
+                <p>Torniquete</p>
+            </div>
+            <div class="icon" onclick="openImageModal()">
+                <img src="https://cdn-icons-png.flaticon.com/512/2750/2750264.png" alt="Gallery Icon">
+                <p>Termómetro</p>
+            </div>
+            <div class="icon" onclick="openImageModal()">
+                <img src="https://cdn-icons-png.flaticon.com/512/3120/3120350.png" alt="Email Icon">
+                <p>Mascarilla</p>
+            </div>
+            <div class="icon" onclick="openImageModal()">
+                <img src="https://cdn-icons-png.flaticon.com/512/2679/2679180.png" alt="Document Icon">
+                <p>Cinta adhesiva médica</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal (pop-up) para mostrar la imagen -->
+    <div id="imageModal">
+        <div id="modalContent">
+            <img id="imageModalContent" src="https://img.freepik.com/vector-gratis/diseno-maqueta-plantilla-reproductor-video-negro_1017-36895.jpg" alt="Video Placeholder">
+            <button id="closeBtn" onclick="closeImageModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="js.js"></script>
+</body>
+</html>
